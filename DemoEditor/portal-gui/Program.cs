@@ -32,7 +32,13 @@ public class Program
                     .ConfigureHandler(new[] { "http://authors:82" });
                 return handler;
             });
-
+        builder.Services
+            .AddHttpClient("CountriesAPI", client => client.BaseAddress = new Uri("http://countries:85/Countries/"))
+            .AddHttpMessageHandler(x => {
+                var handler = x.GetRequiredService<AuthorizationMessageHandler>()
+                    .ConfigureHandler(new[] { "http://countries:85" });
+                return handler;
+            });
         builder.Services
             .AddHttpClient("UsersNotifAPI", client => client.BaseAddress = new Uri("http://users:84"))
             .AddHttpMessageHandler(x => {

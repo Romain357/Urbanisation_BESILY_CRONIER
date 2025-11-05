@@ -1,0 +1,129 @@
+@page "/country/"
+@page "/country/{id}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "editor")]
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigator
+
+<PageTitle>@(id == null ? "Nouveau Pays" : $"Éditer: {CurrentCountry.Name}")</PageTitle>
+
+@if (isLoading)
+{
+    <p><em>Chargement...</em></p>
+}
+else
+{
+    <h3>@(id == null ? "Créer un nouveau pays" : $"Éditer: {CurrentCountry.Name}")</h3>
+    <hr />
+
+    <EditForm OnValidSubmit="HandleSave" Model="CurrentCountry" class="row g-3">
+        <DataAnnotationsValidator />
+        
+        <div class="col-md-6">
+            <label for="name" class="form-label">Nom du pays</label>
+            <InputText class="form-control" id="name" @bind-Value="CurrentCountry.Name" />
+            <ValidationMessage For="@(() => CurrentCountry.Name)" />
+        </div>
+        
+        <div class="col-md-6">
+            <label for="isoCode" class="form-label">Code ISO</label>
+            <InputText class="form-control" id="isoCode" @bind-Value="CurrentCountry.ISOCode" />
+            <ValidationMessage For="@(() => CurrentCountry.ISOCode)" />
+        </div>
+
+        <div class="col-12">
+            <label for="entityId" class="form-label">EntityId (Identifiant métier)</label>
+            <InputText class="form-control" id="entityId" @bind-Value="CurrentCountry.EntityId" disabled="@(id != null)" />
+            <small class="form-text text-muted">Exemple: "FR", "USA", "ES". Ne peut pas être modifié après création.</small>
+            <ValidationMessage For="@(() => CurrentCountry.EntityId)" />
+        </div>
+        
+        @if (!string.IsNullOrEmpty(apiErrorMessage))
+        {
+            <div class="col-12">
+                <div class="alert alert-danger" role="alert">
+                    <strong>Erreur de sauvegarde:</strong> @apiErrorMessage
+                </div>
+            </div>
+        }
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-lg">Sauvegarder</button>
+            <button type="button" class="btn btn-secondary btn-lg" @onclick="Cancel">Annuler</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string? id { get; set; }
+
+    private DTO.Country CurrentCountry = new DTO.Country();
+    
+    private HttpClient client = null;
+    private bool isLoading = false;
+    private string apiErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpFactory.CreateClient("CountriesAPI");
+
+        if (id != null)
+        {
+            isLoading = true;
+            try
+            {
+                CurrentCountry = await client.GetFromJsonAsync<DTO.Country>($"http://countries:85/Countries/{id}");
+            }
+            catch (Exception ex)
+            {
+                apiErrorMessage = $"Impossible de charger le pays: {ex.Message}";
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+        else
+        {
+            CurrentCountry = new DTO.Country();
+        }
+    }
+
+    protected async Task HandleSave()
+    {
+        apiErrorMessage = null;
+        HttpResponseMessage response;
+
+        try
+        {
+            if (id == null)
+            {
+                response = await client.PostAsJsonAsync("http://countries:85/Countries/", CurrentCountry);
+            }
+            else
+            {
+                response = await client.PutAsJsonAsync($"http://countries:85/Countries//{id}", CurrentCountry);
+                
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigator.NavigateTo("/countries");
+            }
+            else
+            {
+                apiErrorMessage = $"Erreur {response.StatusCode}: {await response.Content.ReadAsStringAsync()}";
+            }
+        }
+        catch (Exception ex)
+        {
+            apiErrorMessage = $"Une erreur est survenue: {ex.Message}";
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigator.NavigateTo("/countries");
+    }
+}

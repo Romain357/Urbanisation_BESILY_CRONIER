@@ -691,12 +691,14 @@
       "redirectUris": [
         "http://books:8080/authentication/login-callback",
         "http://portal:88/authentication/login-callback",
-        "http://authors:8080/authentication/login-callback"
+        "http://authors:8080/authentication/login-callback",
+        "http://countries:8080/authentication/login-callback"
       ],
       "webOrigins": [
         "http://portal:88",
         "http://authors:8080",
-        "http://books:8080"
+        "http://books:8080",
+        "http://countries:8080"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -711,7 +713,7 @@
       "attributes": {
         "oidc.ciba.grant.enabled": "false",
         "backchannel.logout.session.required": "true",
-        "post.logout.redirect.uris": "http://portal:88/authentication/logout-callback##http://books:8080/authentication/logout-callback##http://authors:8080/authentication/logout-callback",
+        "post.logout.redirect.uris": "http://portal:88/authentication/logout-callback##http://books:8080/authentication/logout-callback##http://authors:8080/authentication/logout-callback##http://countries:8080/authentication/logout-callback",
         "oauth2.device.authorization.grant.enabled": "false",
         "display.on.consent.screen": "false",
         "backchannel.logout.revoke.offline.tokens": "false"

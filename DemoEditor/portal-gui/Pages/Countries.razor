@@ -1,0 +1,120 @@
+@page "/countries"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "editor")]
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigator
+
+<PageTitle>Countries</PageTitle>
+
+<h1>Countries (total number of @(TotalNumberOfCountries.HasValue ? TotalNumberOfCountries : "N/A"))</h1>
+
+@if (CountriesList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <button @onclick="CreateNewCountry" class="btn btn-primary" title="Add country">Add new country</button>
+    </div>
+
+    <div class="container">
+    @foreach (var country in CountriesList)
+    {
+        <div class="row">
+            <div class="col-xl">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@country.Name.ToUpper()</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@country.ISOCode</h6>
+                        
+                        <p class="card-text">
+                            Entity ID: @country.EntityId
+                        </p>
+                        
+                        <a href="/country/@country.EntityId" class="card-link">Edit (update-all) 
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                            </svg>
+                        </a>
+                        <a href="/countrydiff/@country.EntityId" class="card-link">Edit (auto-patch) 
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div> 
+        </div> 
+    }
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <PaginationBar 
+                CurrentPage="CurrentPage"
+                TotalPages="TotalPages"
+                TotalCount="(int)TotalNumberOfCountries"
+                PageSize="PageSize"
+                Spread="2"
+                SelectedPage="SelectedPage" />
+        </div>
+    </div>
+}
+
+@code {
+    private int? TotalNumberOfCountries = null;
+    private int CurrentPage = 1;
+    private int TotalPages = 1;
+    private int PageSize = 5;
+
+    private DTO.Country[]? CountriesList;
+
+    private HttpClient client = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpFactory.CreateClient("CountriesAPI");
+
+        try
+        {
+            TotalNumberOfCountries = await client.GetFromJsonAsync<int>(@"http://countries:85/Countries/$count");
+            TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfCountries / PageSize);
+
+            CountriesList = await client.GetFromJsonAsync<DTO.Country[]>(@"http://countries:85/Countries?$top=" + PageSize);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur chargement pays: {ex.Message}");
+            CountriesList = new DTO.Country[0];
+            TotalNumberOfCountries = 0;
+        }
+    }
+
+    protected async Task SelectedPage(int page)
+    {
+        try
+        {
+            TotalNumberOfCountries = await client.GetFromJsonAsync<int>(@"http://countries:85/Countries/$count");
+            TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfCountries / PageSize);
+
+            CurrentPage = page;
+            int top = PageSize;
+            int skip = PageSize * (page - 1);
+            CountriesList = await client.GetFromJsonAsync<DTO.Country[]>(@"http://countries:85/Countries?$top=" + top + "&$skip=" + skip);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur pagination pays: {ex.Message}");
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void CreateNewCountry()
+    {
+        Navigator.NavigateTo("/country/");
+    }
+}
