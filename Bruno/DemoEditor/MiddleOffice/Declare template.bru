@@ -1,0 +1,77 @@
+meta {
+  name: Declare template
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{MiddleOfficeURL}}/templates/AuthorNewBookProposal
+  body: json
+  auth: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://books:8080/authentication/login-callback
+  authorization_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/auth
+  access_token_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: portal
+  client_secret: 
+  scope: 
+  state: 
+  pkce: false
+  credentials_placement: basic_auth_header
+  credentials_id: 
+  token_placement: header
+  token_header_prefix: 
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+body:json {
+  {
+      "title": [{"lang": "en-US", "value": "You have been proposed to write a new book for DemoEditor"}],
+      "fields": [
+          {
+              "id": "BookId",
+              "name": [{"lang": "en-US", "value": "Project book identifier"}],
+              "inputType": "string",
+              "visible": false
+          },
+          {
+              "id": "AuthorId",
+              "name": [{"lang": "en-US", "value": "Prospect author identifier"}],
+              "inputType": "string",
+              "visible": false
+          },
+          {
+              "id": "BookTitle",
+              "name": [{"lang": "en-US", "value": "Title of the proposed book"}],
+              "inputType": "string"
+          },
+          {
+              "id": "MaxResponseDate",
+              "name": [{"lang": "en-US", "value": "Deadline for response"}],
+              "inputType": "date",
+              "required": false
+          }
+      ],
+      "possibleDecisions": [
+          {
+              "id": "YES",
+              "title": [{"lang": "en-US", "value": "I accept"}],
+              "actions" : [{"href": "http://books:8080/Books/${BookId}/AuthorsAcceptingWritingProposal/${AuthorId}", "verb": "POST"}]
+          },
+          {
+              "id": "NO",
+              "title": [{"lang": "en-US", "value": "I decline"}]
+          },
+          {
+              "id": "CONTACT",
+              "title": [{"lang": "en-US", "value": "I would like to be contacted by an editor"}],
+              "actions" : [{"href": "http://authors:8080/Authors/${AuthorId}/RequestForContact", "verb": "POST"}]
+          }
+      ]
+  }
+}

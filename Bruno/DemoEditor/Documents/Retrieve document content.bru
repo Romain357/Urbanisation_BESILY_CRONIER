@@ -1,0 +1,16 @@
+meta {
+  name: Retrieve document content
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{CMISURL}}/root/DemoEditor/TestContract
+  body: multipartForm
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}

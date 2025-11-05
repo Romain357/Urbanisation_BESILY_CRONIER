@@ -1,0 +1,22 @@
+meta {
+  name: Query in URL
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{CMISURL}}?cmisselector=query&succinct=true&q=select * from de:AuthorContract where de:authorId='jpgou'
+  body: multipartForm
+  auth: basic
+}
+
+params:query {
+  cmisselector: query
+  succinct: true
+  q: select * from de:AuthorContract where de:authorId='jpgou'
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}

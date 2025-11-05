@@ -1,0 +1,27 @@
+meta {
+  name: Countries API
+  seq: 7
+}
+
+auth {
+  mode: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://books:8080/authentication/login-callback
+  authorization_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/auth
+  access_token_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: portal
+  client_secret: 
+  scope: 
+  state: 
+  pkce: false
+  credentials_placement: basic_auth_header
+  credentials_id: credentials
+  token_placement: header
+  token_header_prefix: 
+  auto_fetch_token: true
+  auto_refresh_token: false
+}

@@ -1,0 +1,55 @@
+meta {
+  name: Patch book
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{BooksURL}}/Books/0024
+  body: json
+  auth: oauth2
+}
+
+headers {
+  ~Content-Type: application/json-patch+json
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://books:8080/authentication/login-callback
+  authorization_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/auth
+  access_token_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: portal
+  client_secret: 
+  scope: 
+  state: 
+  pkce: false
+  credentials_placement: basic_auth_header
+  credentials_id: 
+  token_placement: header
+  token_header_prefix: 
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+body:json {
+  [{
+      "path": "/title",
+      "op": "replace",
+      "value": "Performance in .NET, Second Edition"
+  }]
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  test("Title correctly modified", function () {
+      var jsonData = res.getBody();
+      expect(jsonData.title).to.eql('Performance in .NET, Second Edition');
+  });
+  test("Response time is within limits", function () {
+      expect(res.getResponseTime()).to.be.below(100);
+  });
+}

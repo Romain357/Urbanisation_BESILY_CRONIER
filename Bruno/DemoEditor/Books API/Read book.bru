@@ -1,0 +1,43 @@
+meta {
+  name: Read book
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{BooksURL}}/Books/0024
+  body: none
+  auth: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://books:8080/authentication/login-callback
+  authorization_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/auth
+  access_token_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: portal
+  client_secret: 
+  scope: 
+  state: 
+  pkce: false
+  credentials_placement: basic_auth_header
+  credentials_id: 
+  token_placement: header
+  token_header_prefix: 
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  test("Book has the right entity identifier", function () {
+      var jsonData = res.getBody();
+      expect(jsonData.entityId).to.eql('0024');
+  });
+  test("Response time is within limits", function () {
+      expect(res.getResponseTime()).to.be.below(100);
+  });
+}

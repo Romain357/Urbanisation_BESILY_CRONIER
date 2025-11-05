@@ -1,0 +1,20 @@
+meta {
+  name: Delete document
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{CMISURL}}/root/DemoEditor/TestContract
+  body: multipartForm
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}
+
+body:multipart-form {
+  cmisAction: delete
+}

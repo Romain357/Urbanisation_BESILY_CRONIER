@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "DemoEditor",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

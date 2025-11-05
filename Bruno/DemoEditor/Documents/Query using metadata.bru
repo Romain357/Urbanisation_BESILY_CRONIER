@@ -1,0 +1,21 @@
+meta {
+  name: Query using metadata
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{CMISURL}}
+  body: multipartForm
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}
+
+body:multipart-form {
+  cmisaction: query
+  statement: select * from de:AuthorContract where de:authorId='jpgou'
+}

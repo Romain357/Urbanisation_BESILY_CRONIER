@@ -1,0 +1,37 @@
+meta {
+  name: Create doc with metadata
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{CMISURL}}/root/DemoEditor
+  body: multipartForm
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}
+
+body:multipart-form {
+  cmisaction: createDocument
+  propertyId[0]: cmis:objectTypeId
+  propertyValue[0]: cmis:document
+  propertyId[1]: cmis:name
+  propertyValue[1]: TestContract
+  file: @file(/C:/Users/jpgou/Documents/Recherche/INFORSID24_AntiPatronsAlignement_AuthorsVersion.pdf)
+  propertyId[2]: de:authorId
+  propertyValue[2]: jpgou
+  propertyId[3]: de:bookId
+  propertyValue[3]: 00025
+  propertyId[4]: cmis:secondaryObjectTypeIds
+  propertyValue[4]: P:de:AuthorContract
+  propertyId[5]: de:bookTitle
+  propertyValue[5]: Performance in .NET, 3rd Edition
+  propertyId[6]: de:contractId
+  propertyValue[6]: 2024-jpgou-001
+  propertyId[7]: de:contractType
+  propertyValue[7]: NewEdition
+}

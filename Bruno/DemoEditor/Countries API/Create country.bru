@@ -1,0 +1,51 @@
+meta {
+  name: Create country
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{CountriesURL}}/Countries/
+  body: json
+  auth: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://books:8080/authentication/login-callback
+  authorization_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/auth
+  access_token_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: portal
+  client_secret: 
+  scope: 
+  state: 
+  pkce: false
+  credentials_placement: basic_auth_header
+  credentials_id: credentials
+  token_placement: header
+  token_header_prefix: 
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+body:json {
+    {
+      "entityId": "ES-TEST",
+      "name": "Espagne (Test)",
+      "isoCode": "ES"
+    }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  test("Book created with the right ISBN", function () {
+      var jsonData = res.getBody();
+      expect(jsonData.isbn).to.eql('978-2409002205');
+  });
+  test("Response time is within limits", function () {
+      expect(res.getResponseTime()).to.be.below(100);
+  });
+}

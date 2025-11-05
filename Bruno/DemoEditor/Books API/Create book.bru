@@ -1,0 +1,70 @@
+meta {
+  name: Create book
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BooksURL}}/Books/
+  body: json
+  auth: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://books:8080/authentication/login-callback
+  authorization_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/auth
+  access_token_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: portal
+  client_secret: 
+  scope: 
+  state: 
+  pkce: false
+  credentials_placement: basic_auth_header
+  credentials_id: 
+  token_placement: header
+  token_header_prefix: 
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+body:json {
+  {
+      "entityId": "0024",
+      "isbn": "978-2409002206",
+      "title": "Docker, 4th edition",
+      "numberOfPages": 812,
+      "publishDate": "2019-09-01",
+      "editing": {
+          "numberOfChapters": 15,
+          "status": { "value": "write" },
+          "mainAuthor": {
+              "rel": "dc:creator",
+              "href": "http://authors:82/Authors/jpgou",
+              "title": "JP Gouigoux",
+              "userEmailAddress": "jp.gouigoux@free.fr"
+          }
+      },
+      "sales": {
+          "price": {
+              "value": 54.30,
+              "monetaryUnit": "EUR"
+          },
+          "weightInGrams": 1245
+      }
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  test("Book created with the right ISBN", function () {
+      var jsonData = res.getBody();
+      expect(jsonData.isbn).to.eql('978-2409002205');
+  });
+  test("Response time is within limits", function () {
+      expect(res.getResponseTime()).to.be.below(100);
+  });
+}

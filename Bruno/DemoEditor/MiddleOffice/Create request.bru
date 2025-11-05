@@ -1,0 +1,52 @@
+meta {
+  name: Create request
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{MiddleOfficeURL}}/templates/AuthorNewBookProposal/request
+  body: json
+  auth: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://books:8080/authentication/login-callback
+  authorization_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/auth
+  access_token_url: http://iam:8088/realms/demoeditor/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: portal
+  client_secret: 
+  scope: 
+  state: 
+  pkce: false
+  credentials_placement: basic_auth_header
+  credentials_id: 
+  token_placement: header
+  token_header_prefix: 
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+body:json {
+  [
+      {
+          "fieldId": "BookId",
+          "value": "00025"
+      },
+      {
+          "fieldId": "AuthorId",
+          "value": "jpgou"
+      },
+      {
+          "fieldId": "BookTitle",
+          "value": "Performance in .NET, Third Edition"
+      }
+  ]
+}
+
+tests {
+  bru.setEnvVar("idRequest", res.getBody().entityId);
+  
+}

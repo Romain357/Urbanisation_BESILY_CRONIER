@@ -49,6 +49,16 @@ services:
     networks:
       - front
       - back
+  countries:
+    image: demoeditor/countries-api:1.0
+    build:
+      context: .
+      dockerfile: countries-controller/Dockerfile
+    ports:
+      - 85:8080
+    networks:
+      - front
+      - back
   mo:
     image: demoeditor/middleoffice:1.0
     build:

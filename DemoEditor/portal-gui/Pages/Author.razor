@@ -19,7 +19,8 @@
         </div>
         <div class="col-12">
             <label for="email" class="form-label">Email address</label>
-            <InputText type="email" class="form-control" id="email" placeholder=test@company.com @bind-Value="CurrentAuthor.UserEmailAddress" />
+            <InputText type="email" class="form-control" id="email" placeholder=test@company.com
+                @bind-Value="CurrentAuthor.UserEmailAddress" />
         </div>
         @* <div class="col-md-6">
             <label for="homePhone" class="form-label">Home phone</label>
@@ -45,11 +46,13 @@
         }
         <div class="col-3">
             <label for="streetNumber" class="form-label">Number</label>
-            <InputText class="form-control" id="streetNumber" placeholder="12" @bind-Value="CurrentAuthor.MainAddress.StreetNumber" />
+            <InputText class="form-control" id="streetNumber" placeholder="12"
+                @bind-Value="CurrentAuthor.MainAddress.StreetNumber" />
         </div>
         <div class="col-6">
             <label for="streetName" class="form-label">Street</label>
-            <InputText class="form-control" id="streetName" placeholder="Main Street" @bind-Value="CurrentAuthor.MainAddress.StreetName" />
+            <InputText class="form-control" id="streetName" placeholder="Main Street"
+                @bind-Value="CurrentAuthor.MainAddress.StreetName" />
         </div>
         <div class="col-3">
             <label for="zip" class="form-label">Zip code</label>
@@ -62,10 +65,11 @@
         <div class="col-4">
             <label for="inputState" class="form-label">Country</label>
             <InputSelect id="inputState" class="form-select" @bind-Value="CurrentAuthor.MainAddress.Country.ISOCode">
-                <option selected>Choose...</option>
-                <option value="FRA">France</option>
-                <option value="IND">India</option>
-                <option value="USA">USA</option>
+                <option value="">Choose...</option>
+                @foreach (var c in Countries)
+                {
+                    <option value="@c.ISOCode">@c.Name</option>
+                }
             </InputSelect>
         </div>
         <div class="col-4">
@@ -85,6 +89,7 @@
     public string? id { get; set; }
 
     private DTO.Author? CurrentAuthor = new DTO.Author();
+    private List<DTO.Country> Countries = new List<DTO.Country>();
 
     private HttpClient client = null;
 
@@ -95,7 +100,17 @@
         if (id != null)
         {
             CurrentAuthor = await client.GetFromJsonAsync<DTO.Author>(@"http://authors:82/Authors/" + id);
+
+            try
+            {
+                Countries = await client.GetFromJsonAsync<List<DTO.Country>>("http://countries:85/Countries") ?? new List<DTO.Country>();
+            }
+            catch
+            {
+                Countries = new List<DTO.Country>();
+            }
         }
+
     }
 
     protected async void Save()
@@ -110,7 +125,8 @@
         }
         else
         {
-            CurrentAuthor.MainAddress.Country.Href = "/api/authors/params/countryCodes/" + CurrentAuthor.MainAddress.Country.ISOCode;
+            CurrentAuthor.MainAddress.Country.Href = "/api/authors/params/countryCodes/" +
+            CurrentAuthor.MainAddress.Country.ISOCode;
             CurrentAuthor.MainAddress.Country.Rel = "addressCountry";
             switch (CurrentAuthor.MainAddress.Country.ISOCode)
             {

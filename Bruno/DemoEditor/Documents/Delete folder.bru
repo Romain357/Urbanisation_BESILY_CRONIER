@@ -1,0 +1,20 @@
+meta {
+  name: Delete folder
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{CMISURL}}/root/DemoEditor
+  body: multipartForm
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}
+
+body:multipart-form {
+  cmisAction: delete
+}

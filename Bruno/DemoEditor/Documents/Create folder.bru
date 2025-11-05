@@ -1,0 +1,24 @@
+meta {
+  name: Create folder
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{CMISURL}}/root
+  body: multipartForm
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}
+
+body:multipart-form {
+  cmisAction: createFolder
+  propertyId[0]: cmis:objectTypeId
+  propertyValue[0]: cmis:folder
+  propertyId[1]: cmis:name
+  propertyValue[1]: DemoEditor
+}
