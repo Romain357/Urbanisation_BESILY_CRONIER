@@ -38,6 +38,38 @@ public class CountriesController : ControllerBase
         _countriesCollection = Database.GetCollection<Country>(_collectionName);
     }
 
+    [HttpGet] // GET /Countries
+    [AllowAnonymous] // Permet au client Blazor de récupérer la liste
+    public async Task<ActionResult<IEnumerable<Country>>> GetCountries()
+    {
+        _logger.LogInformation("Tentative de récupération de la liste des pays depuis le cache.");
+
+        // Tente de récupérer depuis le cache
+        if (!_memoryCache.TryGetValue(_cacheKey, out IEnumerable<Country> countriesList))
+        {
+            _logger.LogInformation("Cache vide. Récupération depuis la base de données.");
+            
+            // Si le cache est vide, on va chercher en BDD
+            // On trie par nom pour un affichage cohérent
+            countriesList = await _countriesCollection.Find(r => true)
+                                                      .SortBy(c => c.Name)
+                                                      .ToListAsync();
+
+            // On configure les options du cache
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(10)); // Expire après 10 min
+
+            // On stocke dans le cache
+            _memoryCache.Set(_cacheKey, countriesList, cacheEntryOptions);
+        }
+        else
+        {
+            _logger.LogInformation("Liste des pays récupérée depuis le cache.");
+        }
+
+        return Ok(countriesList);
+    }
+
     // --- LECTURE (READ) ---
     [Authorize(Policy = "editor-apikey")]
     [HttpGet]

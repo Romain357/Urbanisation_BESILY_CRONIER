@@ -93,22 +93,18 @@
 
     private HttpClient client = null;
 
+    private HttpClient clientCountry = null;
+    
+
     protected override async Task OnInitializedAsync()
     {
         client = HttpFactory.CreateClient("AuthorsAPI");
+        clientCountry = HttpFactory.CreateClient("CountriesAPI");
+        Countries = await clientCountry.GetFromJsonAsync<List<DTO.Country>>("http://countries:85/Countries") ?? new List<DTO.Country>();
 
         if (id != null)
         {
             CurrentAuthor = await client.GetFromJsonAsync<DTO.Author>(@"http://authors:82/Authors/" + id);
-
-            try
-            {
-                Countries = await client.GetFromJsonAsync<List<DTO.Country>>("http://countries:85/Countries") ?? new List<DTO.Country>();
-            }
-            catch
-            {
-                Countries = new List<DTO.Country>();
-            }
         }
 
     }
